@@ -44,7 +44,7 @@ RUN curl -sSL https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-s
 
 RUN add-apt-repository -y ppa:deadsnakes/ppa
 
-ARG python_version
+ARG python_version=3.8
 
 # Install build dependencies for common Odoo requirements
 RUN apt-get update -qq \
@@ -97,13 +97,13 @@ RUN virtualenv -p python$python_version /opt/odoo-venv \
     && /opt/odoo-venv/bin/pip list
 ENV PATH=/opt/odoo-venv/bin:$PATH
 
-ARG odoo_version
+ARG odoo_version=15.0
 
 # Install Odoo requirements (use ADD for correct layer caching).
 # We use requirements from OCB for easier maintenance of older versions.
 # We use no-binary for psycopg2 because its binary wheels are sometimes broken
 # and not very portable.
-ADD https://raw.githubusercontent.com/OCA/OCB/$odoo_version/requirements.txt /tmp/ocb-requirements.txt
+ADD https://raw.githubusercontent.com/odoo/odoo/$odoo_version/requirements.txt /tmp/ocb-requirements.txt
 RUN pip install --no-cache-dir --no-binary psycopg2 -r /tmp/ocb-requirements.txt
 
 # Install other test requirements.
