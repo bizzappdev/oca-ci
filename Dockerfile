@@ -44,7 +44,7 @@ RUN curl -sSL https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-s
 
 RUN add-apt-repository -y ppa:deadsnakes/ppa
 
-ARG python_version=3.8
+ARG python_version
 
 # Install build dependencies for common Odoo requirements
 RUN apt-get update -qq \
@@ -97,7 +97,7 @@ RUN virtualenv -p python$python_version /opt/odoo-venv \
     && /opt/odoo-venv/bin/pip list
 ENV PATH=/opt/odoo-venv/bin:$PATH
 
-ARG odoo_version=15.0
+ARG odoo_version
 
 # Install Odoo requirements (use ADD for correct layer caching).
 # We use requirements from OCB for easier maintenance of older versions.
@@ -116,7 +116,7 @@ RUN pip install --no-cache-dir \
   "odoo-autodiscover>=2 ; python_version<'3'"
 
 # Install Odoo (use ADD for correct layer caching)
-ARG odoo_org_repo=odoo/odoo
+ARG odoo_org_repo
 ADD https://api.github.com/repos/$odoo_org_repo/git/refs/heads/$odoo_version /tmp/odoo-version.json
 RUN mkdir /tmp/getodoo \
     && (curl -sSL https://github.com/$odoo_org_repo/tarball/$odoo_version | tar -C /tmp/getodoo -xz) \
