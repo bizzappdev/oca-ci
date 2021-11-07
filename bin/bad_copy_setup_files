@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 
 import os
-import shutil
 
-
-git_workspace = os.environ.get("GITHUB_WORKSPACE", '.')
+git_workspace = os.environ.get("GITHUB_WORKSPACE", ".")
 
 submodules = [
     x
     for x in os.listdir(git_workspace)
     if os.path.isdir(x) and not x.startswith(".git") and x != "setup"
 ]
-text_req = os.path.join(git_workspace, 'test-requirements.txt')
-text_req_file = open(text_req, 'w')
+text_req = os.path.join(git_workspace, "test-requirements.txt")
+text_req_file = open(text_req, "w")
 setup_modules = []
 for submodule in submodules:
     wrk_dir = os.path.join(git_workspace, submodule)
@@ -26,7 +24,7 @@ for submodule in submodules:
         module = os.path.join(setup_path, module_name)
         if not os.path.isdir(module):
             continue
-        setup_modules.append('-e %s\n'%module)
+        setup_modules.append("-e %s\n" % module)
 if setup_modules:
     text_req_file.writelines(setup_modules)
 text_req_file.close()
