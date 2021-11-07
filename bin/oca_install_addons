@@ -17,7 +17,11 @@ export SETUPTOOLS_ODOO_POST_VERSION_STRATEGY_OVERRIDE=none
 # Install addons in current repo in editable mode, so coverage will see them.
 touch test-requirements.txt
 for addon in $(addons --addons-dir "${ADDONS_DIR}" --include "${INCLUDE}" --exclude "${EXCLUDE}" --separator " " list) ; do
-    echo "-e ./setup/${addon}" >> test-requirements.txt
+    if [ -L ${addon} ]; then
+        echo "Skipping ${addon}"
+    else
+        echo "-e ./setup/${addon}" >> test-requirements.txt
+    fi
 done
 cat test-requirements.txt
 pip install -r test-requirements.txt

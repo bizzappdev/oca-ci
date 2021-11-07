@@ -18,18 +18,23 @@ for submodule in submodules:
     if "__manifest__.py" in ls_dir:
         print("Skipping %s: it is normal Module" % submodule)
         continue
-    is_hidden = submodule.startswith('.')
+    is_hidden = submodule.startswith(".")
     print("%s is a submodule" % submodule)
     setup_path = os.path.join(wrk_dir, "setup")
     for module_name in os.listdir(wrk_dir):
         module = os.path.join(wrk_dir, module_name)
-        if module.endswith('setup') or module.endswith('.git') or module.endswith('.github'):
+        module_setup = os.path.join(setup_path, module_name)
+        if (
+            module.endswith("setup")
+            or module.endswith(".git")
+            or module.endswith(".github")
+        ):
             continue
         if not os.path.isdir(module):
             continue
         if is_hidden and module_name not in list_dir:
             continue
-        setup_modules.append("-e %s\n" % module)
+        setup_modules.append("-e %s\n" % module_setup)
 if setup_modules:
     text_req_file.writelines(setup_modules)
 text_req_file.close()
