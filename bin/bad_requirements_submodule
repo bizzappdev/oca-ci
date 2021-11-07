@@ -3,10 +3,10 @@
 import os
 
 git_workspace = os.environ.get("GITHUB_WORKSPACE", ".")
-
+list_dir = os.listdir(git_workspace)
 submodules = [
     x
-    for x in os.listdir(git_workspace)
+    for x in list_dir
     if os.path.isdir(x) and not x.startswith(".git") and x != "setup"
 ]
 text_req = os.path.join(git_workspace, "test-requirements.txt")
@@ -18,11 +18,16 @@ for submodule in submodules:
     if "__manifest__.py" in ls_dir:
         print("Skipping %s: it is normal Module" % submodule)
         continue
+    is_hidden = submodule.startswith('.')
     print("%s is a submodule" % submodule)
     setup_path = os.path.join(wrk_dir, "setup")
-    for module_name in os.listdir(setup_path):
-        module = os.path.join(setup_path, module_name)
+    for module_name in os.listdir(wrk_dir):
+        module = os.path.join(wrk_dir, module_name)
+        if module.endswith('setup') or module.endswith('.git') or module.endswith('.github'):
+            continue
         if not os.path.isdir(module):
+            continue
+        if is_hidden and module_name not in list_dir:
             continue
         setup_modules.append("-e %s\n" % module)
 if setup_modules:
