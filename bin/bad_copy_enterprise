@@ -1,0 +1,13 @@
+#!/bin/bash
+
+mkdir /tmp/enterprise
+
+git clone https://$token@github.com/odoo/enterprise.git -b $ODOO_VERSION --depth 1 /tmp/enterprise/
+
+cp /tmp/enterprise/* /opt/odoo/addons/ -Rf
+
+rm /tmp/enterprise -Rf
+
+pip install --no-cache-dir -e /opt/odoo
+
+pip list

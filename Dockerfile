@@ -117,16 +117,11 @@ RUN pip install --no-cache-dir \
 
 # Install Odoo (use ADD for correct layer caching)
 ARG odoo_org_repo=odoo/odoo
-ARG token
 ADD https://api.github.com/repos/$odoo_org_repo/git/refs/heads/$odoo_version /tmp/odoo-version.json
 RUN mkdir /tmp/getodoo \
     && (curl -sSL https://github.com/$odoo_org_repo/tarball/$odoo_version | tar -C /tmp/getodoo -xz) \
     && mv /tmp/getodoo/* /opt/odoo \
     && rmdir /tmp/getodoo
-RUN mkdir /tmp/enterprise \
-    && git clone https://$token@github.com/odoo/enterprise.git -b $odoo_version --depth 1 /tmp/enterprise/ \
-    && cp /tmp/enterprise/* /opt/odoo/addons/ -Rf\
-    && rm /tmp/enterprise -Rf
 RUN pip install --no-cache-dir -e /opt/odoo \
     && pip list
 
@@ -152,5 +147,5 @@ ENV PIP_NO_PYTHON_VERSION_WARNING=1
 ENV ADDONS_DIR=.
 ENV INCLUDE=
 ENV EXCLUDE=
-ENV OCA_GIT_USER_NAME=oca-ci
-ENV OCA_GIT_USER_EMAIL=oca-ci@odoo-community.org
+ENV OCA_GIT_USER_NAME=BAD-ci
+ENV OCA_GIT_USER_EMAIL=BAD-ci@bizzappdev.com
