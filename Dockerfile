@@ -23,12 +23,13 @@ RUN curl -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.
     && DEBIAN_FRONTEND=noninteractive apt-get install -qq -f --no-install-recommends \
     && rm /tmp/wkhtml.deb
 
-# Install nodejs
+# Install nodejs dependencies
 RUN curl -sSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
     && echo "deb https://deb.nodesource.com/node_15.x `lsb_release -c -s` main" > /etc/apt/sources.list.d/nodesource.list \
     && apt-get update -qq \
     && DEBIAN_FRONTEND=noninteractive apt-get install -qq nodejs
-RUN npm install -g rtlcss less
+# less is for odoo<12
+RUN npm install -g rtlcss less@3.0.4 less-plugin-clean-css
 
 # Install postgresql client
 RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
@@ -46,7 +47,7 @@ RUN add-apt-repository -y ppa:deadsnakes/ppa
 
 ARG python_version
 
-# Install build dependencies for common Odoo requirements
+# Install build dependencies for python libs commonly used by Odoo and OCA
 RUN apt-get update -qq \
     && DEBIAN_FRONTEND=noninteractive apt-get install -qq --no-install-recommends \
        build-essential \
@@ -60,11 +61,16 @@ RUN apt-get update -qq \
        libxml2-dev \
        libxslt1-dev \
        libz-dev \
+       libxmlsec1-dev \
        # for python-ldap
        libldap2-dev \
        libsasl2-dev \
        # need libjpeg to build older pillow versions
-       libjpeg-dev
+       libjpeg-dev \
+       # for pycups
+       libcups2-dev \
+       # some libs need swig
+       swig
 
 # Install pipx, which we use to install other python tools.
 ENV PIPX_BIN_DIR=/usr/local/bin
@@ -78,7 +84,7 @@ RUN python3 -m venv /opt/pipx-venv \
 RUN pipx install --pip-args="--no-cache-dir" virtualenv
 
 # We use manifestoo to check licenses, development status
-RUN pipx install --pip-args="--no-cache-dir" manifestoo>=0.3
+RUN pipx install --pip-args="--no-cache-dir" "manifestoo>=0.3.1"
 
 # Install the 'addons' helper script
 # TODO: use manifestoo
@@ -93,7 +99,7 @@ RUN pipx install --pip-args="--no-cache-dir" "setuptools-odoo>=3.0.1"
 # make sure addons we test declare all their python dependencies properly
 ARG setuptools_constraint
 RUN virtualenv -p python$python_version /opt/odoo-venv \
-    && /opt/odoo-venv/bin/pip install setuptools$setuptools_constraint \
+    && /opt/odoo-venv/bin/pip install "setuptools$setuptools_constraint" "pip>=21.3.1;python_version>='3.6'" \
     && /opt/odoo-venv/bin/pip list
 ENV PATH=/opt/odoo-venv/bin:$PATH
 
